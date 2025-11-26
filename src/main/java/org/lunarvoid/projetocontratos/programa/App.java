@@ -1,12 +1,13 @@
 package org.lunarvoid.projetocontratos.programa;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Scanner;
+
 import org.lunarvoid.projetocontratos.entidades.Contrato;
 import org.lunarvoid.projetocontratos.entidades.Parcela;
 import org.lunarvoid.projetocontratos.repositores.ContratoRepositor;
 import org.lunarvoid.projetocontratos.repositores.ParcelaRepositor;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Scanner;
 
 public class App {
     public static void main(String[] args){
