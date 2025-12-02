@@ -54,6 +54,8 @@ Thumbs.db
 *.env
 *.key
 *.properties.local
+*.properties
+
 
 # Se seu db.properties tiver SENHA, ignore assim:
 # src/main/resources/db.properties
