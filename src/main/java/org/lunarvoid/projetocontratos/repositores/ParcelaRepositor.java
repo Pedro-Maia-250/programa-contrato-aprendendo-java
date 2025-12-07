@@ -1,10 +1,12 @@
 package org.lunarvoid.projetocontratos.repositores;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,52 +14,123 @@ import org.lunarvoid.projetocontratos.entidades.Contrato;
 import org.lunarvoid.projetocontratos.entidades.Parcela;
 import org.lunarvoid.projetocontratos.exeçoes.DBexeption;
 import org.lunarvoid.projetocontratos.repositores.enumeradores.ParcelaEnumerador;
-import org.lunarvoid.projetocontratos.utilitarios.DB;
 
-public class ParcelaRepositor{
-    private static Connection conn;
+public class ParcelaRepositor {
 
-    public ParcelaRepositor(){
-        conn = DB.getConnection();
-    }
+    private static final String API_URL = "http://177.36.245.165/api";
 
-    static void addParcelas(Connection conn ,Contrato contrato){
+    public ParcelaRepositor() {}
 
-        for(Parcela p: contrato.getParcelas()){
-            try (PreparedStatement stmt = conn.prepareStatement("insert into parcelas(numero, valor, datap, statusp) values (?,?,?,?)")) {
-
-            stmt.setString(1, contrato.getNumero());
-            stmt.setDouble(2, p.getValorParcela());
-            stmt.setDate(3, Date.valueOf(p.getMes()));
-            stmt.setString(4, p.getStatus().name());
-
-            stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new DBexeption(e.getMessage());
+    // -------------------------------
+    // 1️⃣ ENVIAR TODAS AS PARCELAS
+    // -------------------------------
+    static void enviarParcelasParaAPI(Contrato contrato) {
+        for (Parcela p : contrato.getParcelas()) {
+            try {
+                enviarParcela(contrato, p);
+            } catch (Exception e) {
+                throw new DBexeption("Erro ao enviar parcela: " + e.getMessage());
             }
         }
     }
 
-    public List<Parcela> getParcelasBanco(Contrato contrato){
-        List<Parcela> parcelas = new ArrayList<>();
-        try (PreparedStatement stmt = conn.prepareStatement("select * from parcelas where numero = ?")) {
-            stmt.setString(1, contrato.getNumero());
-            ResultSet rest = stmt.executeQuery();
+    private static void enviarParcela(Contrato contrato, Parcela p) throws Exception {
 
-            while (rest.next()){
-                Parcela p = new Parcela(
-                    rest.getDate("datap").toLocalDate(), 
-                    rest.getDouble("valor"),
-                    ParcelaEnumerador.valueOf(rest.getString("statusp"))
-                );
-                parcelas.add(p);
+        URL url = java.net.URI.create(API_URL + "/parcelas").toURL();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        String json = """
+            {
+                "numero": "%s",
+                "valor": %s,
+                "data": "%s",
+                "status": "%s"
             }
-            
-            return parcelas;
+            """.formatted(
+                    contrato.getNumero(),
+                    p.getValorParcela(),
+                    p.getMes().toString(),
+                    p.getStatus().name()
+            );
 
-        } catch (SQLException e) {
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(json.getBytes(StandardCharsets.UTF_8));
+        }
+
+        int status = conn.getResponseCode();
+        if (status != 200) {
+            throw new DBexeption("Erro ao enviar parcela para API. Status: " + status);
+        }
+    }
+
+    // -------------------------------
+    // 2️⃣ BUSCAR PARCELAS DO BANCO
+    // -------------------------------
+    public List<Parcela> getParcelasBanco(Contrato contrato) {
+
+        try {
+            URL url = java.net.URI.create(API_URL + "/parcelas/" + contrato.getNumero()).toURL();
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+
+            int status = conn.getResponseCode();
+            if (status != 200) {
+                throw new DBexeption("Erro ao buscar parcelas. Status: " + status);
+            }
+
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+
+            StringBuilder json = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                json.append(line);
+            }
+
+            return parseParcelasJson(json.toString());
+
+        } catch (Exception e) {
             throw new DBexeption(e.getMessage());
         }
+    }
+
+    // -------------------------------
+    // 3️⃣ CONVERTE O JSON EM OBJETOS
+    // -------------------------------
+    private List<Parcela> parseParcelasJson(String json) {
+        // Simples (evita libs externas)
+        // Você pode substituir por Gson se quiser.
+        List<Parcela> lista = new ArrayList<>();
+
+        json = json.replace("[", "").replace("]", "").trim();
+        if (json.isEmpty()) return lista;
+
+        String[] items = json.split("\\},\\{");
+
+        for (String item : items) {
+            String clean = item.replace("{", "").replace("}", "");
+
+            String[] campos = clean.split(",");
+
+            String data = campos[0].split(":")[1].replace("\"", "");
+            double valor = Double.parseDouble(campos[1].split(":")[1]);
+            String status = campos[2].split(":")[1].replace("\"", "");
+
+            Parcela p = new Parcela(
+                java.time.LocalDate.parse(data),
+                valor,
+                ParcelaEnumerador.valueOf(status)
+            );
+
+            lista.add(p);
+        }
+
+        return lista;
     }
 }
