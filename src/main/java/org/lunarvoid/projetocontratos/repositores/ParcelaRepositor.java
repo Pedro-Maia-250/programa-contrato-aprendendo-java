@@ -47,8 +47,8 @@ public class ParcelaRepositor {
             {
                 "numero": "%s",
                 "valor": %s,
-                "data": "%s",
-                "status": "%s"
+                "datap": "%s",
+                "statusp": "%s"
             }
             """.formatted(
                     contrato.getNumero(),

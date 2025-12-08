@@ -52,7 +52,7 @@ public class ContratoRepositor {
             {
                 "numero": "%s",
                 "valor": %s,
-                "data": "%s"
+                "datac": "%s"
             }
             """.formatted(
                     contrato.getNumero(),
