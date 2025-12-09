@@ -15,15 +15,18 @@ import org.lunarvoid.projetocontratos.entidades.Parcela;
 import org.lunarvoid.projetocontratos.exeçoes.DBexeption;
 import org.lunarvoid.projetocontratos.repositores.enumeradores.ParcelaEnumerador;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+
 public class ParcelaRepositor {
 
     private static final String API_URL = "http://177.36.245.165/api";
 
     public ParcelaRepositor() {}
 
-    // -------------------------------
-    // 1️⃣ ENVIAR TODAS AS PARCELAS
-    // -------------------------------
     static void enviarParcelasParaAPI(Contrato contrato) {
         for (Parcela p : contrato.getParcelas()) {
             try {
@@ -67,9 +70,6 @@ public class ParcelaRepositor {
         }
     }
 
-    // -------------------------------
-    // 2️⃣ BUSCAR PARCELAS DO BANCO
-    // -------------------------------
     public List<Parcela> getParcelasBanco(Contrato contrato) {
 
         try {
@@ -100,27 +100,20 @@ public class ParcelaRepositor {
         }
     }
 
-    // -------------------------------
-    // 3️⃣ CONVERTE O JSON EM OBJETOS
-    // -------------------------------
     private List<Parcela> parseParcelasJson(String json) {
-        // Simples (evita libs externas)
-        // Você pode substituir por Gson se quiser.
+        Gson gson = new Gson();
+
+        // transforma o JSON inteiro em um array do tipo JsonObject
+        JsonArray array = gson.fromJson(json, JsonArray.class);
+
         List<Parcela> lista = new ArrayList<>();
 
-        json = json.replace("[", "").replace("]", "").trim();
-        if (json.isEmpty()) return lista;
+        for (JsonElement elem : array) {
+            JsonObject obj = elem.getAsJsonObject();
 
-        String[] items = json.split("\\},\\{");
-
-        for (String item : items) {
-            String clean = item.replace("{", "").replace("}", "");
-
-            String[] campos = clean.split(",");
-
-            String data = campos[0].split(":")[1].replace("\"", "");
-            double valor = Double.parseDouble(campos[1].split(":")[1]);
-            String status = campos[2].split(":")[1].replace("\"", "");
+            String data = obj.get("datap").getAsString();
+            double valor = obj.get("valor").getAsDouble();
+            String status = obj.get("statusp").getAsString();
 
             Parcela p = new Parcela(
                 java.time.LocalDate.parse(data),
@@ -133,4 +126,5 @@ public class ParcelaRepositor {
 
         return lista;
     }
+
 }

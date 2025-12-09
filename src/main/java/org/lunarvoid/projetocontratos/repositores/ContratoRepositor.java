@@ -26,13 +26,10 @@ public class ContratoRepositor {
         }
 
         try {
-            // 1️⃣ GERA AS PARCELAS NO JAVA
             SDPDP.processarParcelas(qtdparcelas, contrato, new Picpay());
 
-            // 2️⃣ MANDA O CONTRATO PARA A API
             enviarContratoParaAPI(contrato);
 
-            // 3️⃣ MANDA AS PARCELAS PARA A API
             ParcelaRepositor.enviarParcelasParaAPI(contrato);
 
         } catch (Exception e) {
