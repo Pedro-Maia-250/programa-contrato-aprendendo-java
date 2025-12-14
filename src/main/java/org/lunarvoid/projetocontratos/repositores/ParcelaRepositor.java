@@ -27,17 +27,8 @@ public class ParcelaRepositor {
 
     public ParcelaRepositor() {}
 
-    static void enviarParcelasParaAPI(Contrato contrato) {
-        for (Parcela p : contrato.getParcelas()) {
-            try {
-                enviarParcela(contrato, p);
-            } catch (Exception e) {
-                throw new DBexeption("Erro ao enviar parcela: " + e.getMessage());
-            }
-        }
-    }
 
-    private static void enviarParcela(Contrato contrato, Parcela p) throws Exception {
+    public static void enviarParcela(Contrato contrato, Parcela p) throws Exception {
 
         URL url = java.net.URI.create(API_URL + "/parcelas").toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
