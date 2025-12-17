@@ -1,5 +1,7 @@
 package org.lunarvoid.projetocontratos.repositores;
 
+import org.lunarvoid.projetocontratos.utilitarios.Config;
+
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -13,7 +15,9 @@ import org.lunarvoid.projetocontratos.seviços.SDPDP;
 
 public class ContratoRepositor {
 
-    private static final String API_URL = "http://177.36.245.165/api";
+    private static final String API_URL = Config.get("api.base.url");
+    private static final String API_KEY = Config.get("api.key");
+
 
     public ContratoRepositor() {}
 
@@ -35,6 +39,7 @@ public class ContratoRepositor {
 
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("X-API-KEY", API_KEY);
         conn.setDoOutput(true);
 
         StringBuilder parcelasJson = new StringBuilder();

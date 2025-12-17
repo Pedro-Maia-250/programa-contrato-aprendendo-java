@@ -1,5 +1,7 @@
 package org.lunarvoid.projetocontratos.repositores;
 
+import org.lunarvoid.projetocontratos.utilitarios.Config;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -23,9 +25,13 @@ import com.google.gson.JsonObject;
 
 public class ParcelaRepositor {
 
-    private static final String API_URL = "http://177.36.245.165/api";
+    private static final String API_URL = Config.get("api.base.url");
+    private static final String API_KEY = Config.get("api.key");
 
-    public ParcelaRepositor() {}
+
+    public ParcelaRepositor() {
+
+    }
 
 
     public static void enviarParcela(Contrato contrato, Parcela p) throws Exception {
@@ -35,6 +41,7 @@ public class ParcelaRepositor {
 
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("X-API-KEY", API_KEY);
         conn.setDoOutput(true);
 
         String json = """
@@ -64,9 +71,11 @@ public class ParcelaRepositor {
     public List<Parcela> getParcelasBanco(Contrato contrato) {
 
         try {
-            URL url = java.net.URI.create(API_URL + "/parcelas/" + contrato.getNumero()).toURL();
 
+            URL url = java.net.URI.create(API_URL + "/parcelas/" + contrato.getNumero()).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestProperty("X-API-KEY", API_KEY);
 
             conn.setRequestMethod("GET");
 
