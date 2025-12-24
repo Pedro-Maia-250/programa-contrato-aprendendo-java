@@ -84,9 +84,7 @@ public class ParcelaRepositor {
                 throw new DBexeption("Erro ao buscar parcelas. Status: " + status);
             }
 
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
-
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
             StringBuilder json = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {

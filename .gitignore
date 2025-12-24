@@ -66,3 +66,5 @@ Thumbs.db
 # Você NÃO precisa mais da pasta lib/
 # Se ainda estiver usando, você pode ignorar ela:
 # lib/
+
+.fake

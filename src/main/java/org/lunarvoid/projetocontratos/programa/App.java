@@ -12,6 +12,12 @@ import org.lunarvoid.projetocontratos.repositores.ParcelaRepositor;
 public class App {
     public static void main(String[] args){
         try (Scanner sc = new Scanner(System.in)) {
+            
+            System.out.println("digite um texto");
+            String resposta = new ContratoRepositor().getTamanhoTexto(sc.nextLine());
+            System.out.println(resposta);
+
+            /*
             System.out.println("Entre com os dados do contrato");
             System.out.print("Digite o numero do contrato: ");
             String numero = sc.next();
@@ -24,10 +30,11 @@ public class App {
             
             new ContratoRepositor().addContrato(ct, qtd);
             List<Parcela> parcelas = new ParcelaRepositor().getParcelasBanco(ct);
-
+            
             for (Parcela p : parcelas){
                 System.out.println(p);
             }
+            */
             
         }
     }
