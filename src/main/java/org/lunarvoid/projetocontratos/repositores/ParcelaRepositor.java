@@ -101,7 +101,6 @@ public class ParcelaRepositor {
     private List<Parcela> parseParcelasJson(String json) {
         Gson gson = new Gson();
 
-        // transforma o JSON inteiro em um array do tipo JsonObject
         JsonArray array = gson.fromJson(json, JsonArray.class);
 
         List<Parcela> lista = new ArrayList<>();

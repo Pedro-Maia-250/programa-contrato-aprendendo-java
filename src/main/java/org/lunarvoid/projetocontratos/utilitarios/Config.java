@@ -27,7 +27,6 @@ public class Config {
                 e
             );
         }
-        System.out.println("cheguei aqui 1");
     }
 
     public static String get(String key) {

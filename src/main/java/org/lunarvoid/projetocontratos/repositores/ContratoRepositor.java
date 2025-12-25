@@ -100,8 +100,6 @@ public class ContratoRepositor {
 
     public String getTamanhoTexto(String texto){
 
-        System.out.println("cheguei aqui 2");
-
         if (texto.isEmpty()){
             throw new IllegalArgumentException("texto invalido"); 
         }
@@ -116,24 +114,21 @@ public class ContratoRepositor {
             conn.setRequestProperty("X-API-KEY", API_KEY);
             conn.setDoOutput(true);
 
-            System.out.println("cheguei aqui 3 - " + url.toString());
-
             String json = """
             {
                 "texto": "%s"
             }
             """.formatted(texto);
 
-            System.out.println("cheguei aqui 4 - " + API_KEY + " " + API_URL);
-
             try (OutputStream os = conn.getOutputStream()){
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
 
+
             int status = conn.getResponseCode();
             
             if(status != 200){
-                throw new Exception("falha ao descobrir o tamanho do texto " + texto);
+                throw new Exception("falha ao descobrir o tamanho do texto " + texto + " " + status);
             }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
