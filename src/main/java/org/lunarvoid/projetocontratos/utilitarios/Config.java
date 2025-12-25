@@ -1,25 +1,33 @@
 package org.lunarvoid.projetocontratos.utilitarios;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class Config {
 
-    private static Properties props = new Properties();
+    private static final Properties props = new Properties();
 
     static {
-        try (InputStream input = new FileInputStream("src\\main\\resourses\\application.properties")) {
+        try (InputStream input =
+                Config.class
+                      .getClassLoader()
+                      .getResourceAsStream("application.properties")) {
+
+            if (input == null) {
+                throw new RuntimeException(
+                    "application.properties não encontrado no classpath"
+                );
+            }
 
             props.load(input);
 
         } catch (Exception e) {
             throw new RuntimeException(
-                "Erro ao carregar application.properties. " +
-                "Verifique se o arquivo está na raiz do projeto. " +
-                "Detalhe: " + e.getMessage()
+                "Erro ao carregar application.properties: " + e.getMessage(),
+                e
             );
         }
+        System.out.println("cheguei aqui 1");
     }
 
     public static String get(String key) {

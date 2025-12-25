@@ -3,8 +3,6 @@ package org.lunarvoid.projetocontratos.repositores;
 import org.lunarvoid.projetocontratos.utilitarios.Config;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.BufferedReader;
@@ -102,6 +100,8 @@ public class ContratoRepositor {
 
     public String getTamanhoTexto(String texto){
 
+        System.out.println("cheguei aqui 2");
+
         if (texto.isEmpty()){
             throw new IllegalArgumentException("texto invalido"); 
         }
@@ -116,11 +116,15 @@ public class ContratoRepositor {
             conn.setRequestProperty("X-API-KEY", API_KEY);
             conn.setDoOutput(true);
 
+            System.out.println("cheguei aqui 3 - " + url.toString());
+
             String json = """
             {
                 "texto": "%s"
             }
             """.formatted(texto);
+
+            System.out.println("cheguei aqui 4 - " + API_KEY + " " + API_URL);
 
             try (OutputStream os = conn.getOutputStream()){
                 os.write(json.getBytes(StandardCharsets.UTF_8));
